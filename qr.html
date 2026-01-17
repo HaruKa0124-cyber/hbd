@@ -7,23 +7,39 @@
     body {
       margin: 0;
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
       height: 100vh;
       background: #fff0f5;
+      font-family: sans-serif;
     }
     canvas {
       box-shadow: 0 10px 25px rgba(0,0,0,0.3);
       border-radius: 20px;
+      margin-bottom: 20px;
+    }
+    button {
+      padding: 10px 20px;
+      background: #ff4d6d;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover {
+      background: #e03b5e;
     }
   </style>
 </head>
 <body>
   <div id="qrcode"></div>
+  <button id="saveBtn">Save QR</button>
 
   <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
   <script>
-    const qrText = "https://haruka0124-cyber.github.io/val/";
+    const qrText = "https://haruka0124-cyber.github.io/hbd/";
     const qr = qrcode(0, 'H');
     qr.addData(qrText);
     qr.make();
@@ -37,9 +53,20 @@
     canvas.height = qrSize;
     qrContainer.appendChild(canvas);
 
+    // 1-р давхар: стандарт квадрат QR (уншигдана)
     ctx.fillStyle = '#fff0f5';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+    for (let r = 0; r < qr.getModuleCount(); r++) {
+      for (let c = 0; c < qr.getModuleCount(); c++) {
+        if (qr.isDark(r, c)) {
+          ctx.fillStyle = '#ff4d6d';
+          ctx.fillRect(c * tileSize, r * tileSize, tileSize, tileSize);
+        }
+      }
+    }
+
+    // Зүрх зурдаг функц
     function drawHeart(x, y, size, color) {
       ctx.save();
       ctx.translate(x + size/2, y + size/2);
@@ -54,13 +81,24 @@
       ctx.restore();
     }
 
+    // 2-р давхар: зүрхээр давхарлаж зурна
     for (let r = 0; r < qr.getModuleCount(); r++) {
       for (let c = 0; c < qr.getModuleCount(); c++) {
         if (qr.isDark(r, c)) {
-          drawHeart(c*tileSize, r*tileSize, tileSize, '#ff4d6d');
+          drawHeart(c*tileSize, r*tileSize, tileSize, 'rgba(255,77,109,0.5)'); // alpha 0.5
         }
       }
     }
+
+    // PNG болгон хадгалах
+    const saveBtn = document.getElementById('saveBtn');
+    saveBtn.addEventListener('click', () => {
+      const dataURL = canvas.toDataURL('image/png');
+      const a = document.createElement('a');
+      a.href = dataURL;
+      a.download = 'valentine_qr.png';
+      a.click();
+    });
   </script>
 </body>
 </html>
